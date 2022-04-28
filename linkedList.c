@@ -1,14 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct{
+typedef struct no No;
+
+struct no{
     int valor;
-    struct No *proximo;
-}No;
+    No *proximo;
+};
 
 typedef struct{
     int tamanho;
-    struct No *head;
+    No *head;
 }Lista;
 
 Lista* criarLista(){
@@ -19,7 +21,6 @@ Lista* criarLista(){
     }else{
         printf("Erro ao alocar memoria");
     }
-
     return lista;
 }
 
@@ -35,43 +36,40 @@ No* criarNo(int valor){
     return novoNo;
 }
 
-No* inserirInicio(Lista *lista, int valor){
+void inserirInicio(Lista *lista, int valor){
     No *novoNo = criarNo(valor);
 
-    if(lista->head == NULL){
+    if(lista == NULL){
+        lista->head = novoNo;
         lista->tamanho = lista->tamanho + 1;
-        return novoNo;
     }
 
-    novoNo->proximo = lista->head;
-    lista->head = novoNo;
-    lista->tamanho = lista->tamanho + 1;
-
-    return novoNo;
+    if(lista != NULL){
+        novoNo->proximo = lista->head;
+        lista->head = novoNo;
+        lista->tamanho = lista->tamanho + 1;
+    }
 }
 
-No* inserirFim(Lista *lista, int valor){
+void inserirFim(Lista *lista, int valor){
     No *novoNo = criarNo(valor);
     No *aux = lista->head;
 
-    if(lista-> head == NULL){
+    if(lista == NULL){
+        lista->head = novoNo;
         lista->tamanho = lista->tamanho + 1;
-        return novoNo;
     }
 
-    if(lista->head != NULL){
+    if(lista != NULL){
         while(aux->proximo){
             aux = aux->proximo;
         }
         aux->proximo = novoNo;
+        lista->tamanho = lista->tamanho + 1;
     }
-
-    lista->tamanho = lista -> tamanho + 1;
-
-    return lista->head;
 }
 
-No* inserirApos(Lista *lista, int valor, int num){
+void inserirApos(Lista *lista, int valor, int num){
     No *novoNo = criarNo(valor);
     No *aux = lista -> head;
 
@@ -79,25 +77,28 @@ No* inserirApos(Lista *lista, int valor, int num){
         aux = aux->proximo;
     }
 
-    if(aux -> valor != num && aux->proximo == NULL) return lista->head;
-
-    novoNo -> proximo = aux -> proximo;
-    aux -> proximo = novoNo;
-
-    return lista->head;
-}
-
-No* removerInicio(Lista *lista){
-    if(lista -> head != NULL){
-        No *aux = lista -> head;
-        lista -> head = aux->proximo;
-        free(aux);
+    if(aux->valor == num){
+        novoNo -> proximo = aux -> proximo;
+        aux -> proximo = novoNo;
     }
-    return lista -> head;
+
+    if(aux -> valor != num && aux->proximo == NULL){
+        printf("Valor anterio não existe na lista\n");
+    }
 }
 
-No* removerFim(Lista *lista){
-    if(lista -> head != NULL){
+void removerInicio(Lista *lista){
+    if(lista != NULL){
+        No *aux = lista -> head;
+        lista->head = aux->proximo;
+        free(aux);
+    }else{
+        printf("Lista está vazia");
+    }
+}
+
+void removerFim(Lista *lista){
+    if(lista!= NULL){
         No *aux = lista -> head;
         while(aux->proximo->proximo){
             aux = aux->proximo;
@@ -105,29 +106,35 @@ No* removerFim(Lista *lista){
         No *ultimo = aux->proximo;
         aux->proximo = NULL;
         free(ultimo);
+    }else{
+        printf("Lista esta vazia");
     }
-    return lista -> head;
 }
 
-No* remover(Lista *lista, int valor){
-    if(lista -> head!=NULL){
-        No *aux = lista -> head;
+void remover(Lista *lista, int valor){
+    if(lista!=NULL){
+        No *aux = lista -> head; //aux = 1
         No *anterior;
+
+        anterior->proximo == NULL;
         while(aux->valor != valor && aux->proximo){
             anterior = aux;
             aux = aux->proximo;
         }
-        if(aux == lista -> head){
-            return removerInicio(lista -> head);
+        if(aux->valor == valor){
+            //remove inicio
+            if(anterior->proximo == NULL){
+                lista->head = aux->proximo;
+                free(aux);
+            //remove do meio ou fim
+            }else{
+                anterior->proximo = aux->proximo;
+                free(aux);
+            }
+        }else{
+            printf("A lista nao contem o valor");
         }
-        if(aux->proximo==NULL){
-            removerFim(lista -> head);
-        }
-
-        anterior->proximo = aux->proximo;
-        free(aux);
     }
-    return lista -> head;
 }
 
 void listar(Lista *lista){
@@ -151,9 +158,20 @@ No* buscar(No *head, int valor){
 
 int main(){
     Lista *lista = criarLista();
-    for(int i = 0; i<6;i++){
-       lista -> head = inserirFim(lista, i);
-    }
+
+    inserirInicio(lista, 1);
+    inserirApos(lista, 10, 1);
+    inserirFim(lista, 5);
+
+
+    printf("Insercoes:\n");
+    listar(lista);
+    printf("\n");
+
+    //erro ao remover primeiro elemento
+    remover(lista, 1);
+
+    printf("Remocoes:\n");
     listar(lista);
 
     return 0;
