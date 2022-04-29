@@ -92,6 +92,7 @@ void removerInicio(Lista *lista){
         No *aux = lista -> head;
         lista->head = aux->proximo;
         free(aux);
+        lista->tamanho = lista->tamanho - 1;
     }else{
         printf("Lista está vazia");
     }
@@ -106,6 +107,7 @@ void removerFim(Lista *lista){
         No *ultimo = aux->proximo;
         aux->proximo = NULL;
         free(ultimo);
+        lista->tamanho - lista->tamanho -1;
     }else{
         printf("Lista esta vazia");
     }
@@ -126,10 +128,12 @@ void remover(Lista *lista, int valor){
             if(anterior->proximo == NULL){
                 lista->head = aux->proximo;
                 free(aux);
+                lista->tamanho = lista->tamanho - 1;
             //remove do meio ou fim
             }else{
                 anterior->proximo = aux->proximo;
                 free(aux);
+                lista->tamanho = lista->tamanho - 1;
             }
         }else{
             printf("A lista nao contem o valor");
