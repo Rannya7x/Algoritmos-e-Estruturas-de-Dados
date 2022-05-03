@@ -3,12 +3,16 @@
 
 typedef struct node Node;
 
-
 struct node{
     int data;
     Node *left;
     Node *right;
 };
+
+typedef struct{
+    int tamanho;
+    Node *root;
+}BinaryTree;
 
 Node* createNode(int data){
     Node *newNode = (Node*)malloc(sizeof(Node));
@@ -22,42 +26,54 @@ Node* createNode(int data){
     return newNode;
 }
 
-Node* createTree(){
-    return NULL;
+BinaryTree* createTree(){
+    BinaryTree *newTree = (BinaryTree*)malloc(sizeof(BinaryTree));
+    if(newTree){
+        newTree->root = NULL;
+    }else{
+        printf("Erro ao alocar memória");
+    }
+    return newTree;
 };
 
-Node* inserir(Node *tree, int data){
-    Node *newNode = createNode(data);
-
-    if(tree == NULL )return newNode;
-
-    if(newNode->data < tree->data){
-        tree->left = inserir(tree->left, newNode->data);
+void inserirNo(Node *node, int data){
+    if(node != NULL){
+        if(data < node->data){
+            inserirNo(node->left, data);
+        }else{
+            inserirNo(node->right, data);
+        }
     }else{
-        tree->right = inserir(tree->right, newNode->data);
+        node = createNode(data);
     }
-    return tree;
 }
 
-Node* buscar(Node *tree, int data){
+void inserir(BinaryTree *tree, int data){
+    if(tree->root == NULL){
+        tree->root = createNode(data);
+    }else{
+        inserirNo(tree->root, data);
+    }
+
+}
+
+Node* buscarEnderecoNo(Node *tree, int data){
 
     if(tree == NULL) return NULL;
 
     if(data == tree->data) return tree;
 
     if(tree->data > data){
-        return buscar(tree->left, data);
+        return buscarEnderecoNo(tree->left, data);
     }
 
-    return buscar(tree->right, data);
+    return buscarEnderecoNo(tree->right, data);
 
 }
 
-int contadorNos(Node *tree){
+int contadorNos(BinaryTree *tree){
 
-    if(tree == NULL) return 0;
-
-    return contadorNos(tree->left) + 1 + contadorNos(tree->right);
+    return tree->tamanho;
 
 }
 
@@ -72,22 +88,18 @@ void listar(Node *tree){
 }
 
 int main(){
-    Node *binaryTree;
-    Node *data;
-    binaryTree = createTree();
+    BinaryTree *binaryTree = createTree();
 
-    binaryTree = inserir(binaryTree, 5);
-    binaryTree = inserir(binaryTree, 10);
-    binaryTree = inserir(binaryTree, 4);
+    //for(int i=0; i<6;i++){
+    //    inserir(binaryTree, i);
+    //}
+
+    inserir(binaryTree, 5);
+    inserir(binaryTree, 4);
 
     printf("Listagem da arvore:\n\n");
-    listar(binaryTree);
+    listar(binaryTree->root);
     printf("\n");
-
-    printf("\n quantidade de nos = %d\n", contadorNos(binaryTree));
-
-    data = buscar(binaryTree, 10);
-    printf("\nbuscar = %p\n", data);
 
     return 0;
 };
