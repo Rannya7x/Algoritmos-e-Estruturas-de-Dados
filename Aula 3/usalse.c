@@ -1,7 +1,7 @@
 #include "stdio.h"
 #include "listase.h"
 
-int main(int argc, char const *argv[])
+int main()
 {
     int num;
     t_lse* deNumeros = criar_lse();
