@@ -10,8 +10,9 @@ static int* criar_num(int num){
 }
 
 void imprimir_num(void* num){
+    int* novo_num = malloc(sizeof(num));
     
-    printf("%d ", num);
+    printf("%d ", *novo_num);
 
 }
 struct msc
