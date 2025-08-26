@@ -80,6 +80,48 @@ void* remover_lse(t_lse* lse){
     return carga;
 }
 
+void* remover_final_lse(t_lse* lse){
+    void* carga_removida=NULL;
+    t_elemento_lse* cam = lse->primeiro;
+    t_elemento_lse* anterior = NULL;
+    
+    if(lse->primeiro==NULL){//lista vazia
+        return NULL;
+    }
+    if(lse->tamanho==1){//elemento unico
+        return cam->carga_util;
+    }
+
+    while(cam->prox!=NULL){
+        anterior = cam;
+        cam=cam->prox;
+    }
+    carga_removida = cam->carga_util;
+    
+    if(anterior==NULL){//se anterior é null, o elemento a ser removido é o primeiro
+        lse->primeiro = NULL;
+        lse->ultimo = NULL;
+    }else{//o anterior se torna o ultimo
+        anterior->prox = NULL;
+        lse->ultimo = anterior;
+    }
+    free(cam);
+    lse->tamanho--;
+    return carga_removida;
+}
+
+void* acessar_lse(t_lse* lse, int pos){
+    t_elemento_lse* cam = lse->primeiro;
+    if((pos<0) || (pos>=lse->tamanho) || (cam==NULL)){
+        return NULL;
+    } 
+    while(pos>0){
+        cam=cam->prox;
+        pos--;
+    }
+    return cam->carga_util;
+}
+
 void imprimir_lse(t_lse* lse){
     t_elemento_lse *cam = lse->primeiro;
     while(cam!=NULL){
@@ -127,18 +169,31 @@ void inserir_conteudo_lse(t_lse* lse, void* conteudo){
 void* remover_conteudo_lse(t_lse* lse, void* conteudo){
     t_elemento_lse *anterior = NULL;
     t_elemento_lse *cam = lse->primeiro;
+    void* carga_removida = NULL;
 
     while((cam!=NULL) && (lse->comparar(cam->carga_util, conteudo)!=0)){
         anterior = cam;
         cam = cam->prox;
     }
+    //se cam é null o conteudo nao foi encontrado
     if(cam==NULL){
         return NULL;
-    }else{
-        void *deletado = cam->carga_util;
-        anterior->prox = cam->prox;
-        free(cam);
-        lse->tamanho--;
     }
-    return deletado;
+    carga_removida = cam->carga_util;
+    //se anterior continua null, o elemento a ser removido é o primeiro
+    if(anterior==NULL){
+        lse->primeiro = cam->prox;
+        if(lse->primeiro==NULL){
+            lse->ultimo = NULL;;
+        }
+    }else{//conteudo no meio ou no fim
+        anterior->prox = cam->prox;
+        if(cam=lse->ultimo){
+            lse->ultimo = anterior;
+        }
+    }
+    free(cam);
+    lse->tamanho--;
+    
+    return carga_removida;
 }

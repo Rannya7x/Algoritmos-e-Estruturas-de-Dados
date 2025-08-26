@@ -9,9 +9,9 @@ static int* criar_num(int num){
     return novo;
 }
 
-void imprimir_num(int* num){
+void imprimir_num(void* num){
     
-    printf("%d ", *num);
+    printf("%d ", num);
 
 }
 struct msc
@@ -28,24 +28,27 @@ struct msc* criar_musica(char *nome, int duracao){
     return nova;
 }
 
-void imprimir_musica(struct msc* m){
+void imprimir_musica(void* m){
+    struct msc* musica = (struct msc*) m;
     if (m == NULL)
         return;
-    int min = m->duracao/60;
-    int seg = m->duracao - min*60; 
-    printf("%s (%d:%d)\n", m->nome, min, seg);
+    int min = musica->duracao/60;
+    int seg = musica->duracao - min*60; 
+    printf("%s (%d:%d)\n", musica->nome, min, seg);
 }
 
-int comparar_musica(struct msc* m, char* nome_buscado){
-    return strcmp(m->nome, nome_buscado);
+int comparar_musica(void* m, void* nome_buscado){
+    struct msc* musica = (struct msc*) m;
+    char* nome = (char*) nome_buscado;
+    return strcmp(musica->nome, nome_buscado);
 }
 
 
 int main(int argc, char const *argv[])
 {
     int num;
-    t_lse* deNumeros = criar_lse(imprimir_num, NULL);
-    t_lse* deMusicas = criar_lse(imprimir_musica, comparar_musica);
+    t_lse* deNumeros = criar_lse(imprimir_num, NULL, NULL);
+    t_lse* deMusicas = criar_lse(imprimir_musica, comparar_musica, NULL);
 
     scanf("%d", &num);
     while(num!=-1){
@@ -73,7 +76,7 @@ int main(int argc, char const *argv[])
     struct msc *buscado = buscar_lse(deMusicas, nome);
     imprimir_musica(buscado);
     
-    int *buscado_num = busca_lse(deNumeros, num);
+    int *buscado_num = buscar_lse(deNumeros, &num);
     imprimir_num(buscado_num);
     return 0;
 }
