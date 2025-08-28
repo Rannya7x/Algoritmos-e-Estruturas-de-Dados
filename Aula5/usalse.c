@@ -21,7 +21,7 @@ struct msc
     int duracao;
 };
 
-struct msc* criar_musica(char *nome, int duracao){
+struct msc* criar_musica(void *nome, int duracao){
     struct msc* nova = malloc(sizeof(struct msc));
     strcpy(nova->nome, nome);
     nova->duracao = duracao;

@@ -81,33 +81,33 @@ void* remover_lse(t_lse* lse){
 }
 
 void* remover_final_lse(t_lse* lse){
-    void* carga_removida=NULL;
-    t_elemento_lse* cam = lse->primeiro;
-    t_elemento_lse* anterior = NULL;
-    
-    if(lse->primeiro==NULL){//lista vazia
-        return NULL;
-    }
-    if(lse->tamanho==1){//elemento unico
-        return cam->carga_util;
-    }
+    t_elemento_lse *cam = lse->primeiro;
+    t_elemento_lse* deletado = NULL;
+    void* carga = NULL;
 
-    while(cam->prox!=NULL){
-        anterior = cam;
-        cam=cam->prox;
+    if(lse->primeiro == NULL){ // lista vazia
+        return carga;
     }
-    carga_removida = cam->carga_util;
-    
-    if(anterior==NULL){//se anterior é null, o elemento a ser removido é o primeiro
+    if(lse->primeiro==lse->ultimo){ // lista com um elemento
+        deletado = lse->primeiro;
         lse->primeiro = NULL;
         lse->ultimo = NULL;
-    }else{//o anterior se torna o ultimo
-        anterior->prox = NULL;
-        lse->ultimo = anterior;
+        carga = deletado->carga_util;
+        free(deletado);
+        lse->tamanho--;
+        return carga;
     }
-    free(cam);
+
+    while(cam->prox->prox != NULL){ // cam aponta para o penultimo
+        cam = cam->prox;
+    }
+    deletado = cam->prox;
+    carga = deletado->carga_util;
+    lse->ultimo = cam;
+    cam->prox = NULL;
+    free(deletado);
     lse->tamanho--;
-    return carga_removida;
+    return carga;
 }
 
 void* acessar_lse(t_lse* lse, int pos){
