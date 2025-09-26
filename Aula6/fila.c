@@ -9,7 +9,7 @@ struct fila{
 
 t_fila* fila_criar(){
     t_fila* nova = malloc(sizeof(t_fila));
-    nova->elems = lse_criar(NULL,NULL);
+    nova->elems = criar_lse(NULL,NULL, NULL);
     nova->tamanho = 0;
     
     return nova;
@@ -18,7 +18,7 @@ t_fila* fila_criar(){
 void fila_enfileirar(t_fila* fila, void* elem){
     if(fila == NULL)
         return;
-    lse_inserir_final(fila->elems, elem);
+    inserir_final_lse(fila->elems, elem);
     fila->tamanho++;
 }
 
@@ -26,7 +26,7 @@ void* fila_desenfileirar(t_fila* fila){
     if (fila==NULL)
         return NULL;
 
-    void *elem = lse_remover(fila->elems);
+    void *elem = remover_lse(fila->elems);
     if (elem)
         fila->tamanho--;
     return elem;
@@ -36,7 +36,7 @@ void* fila_cabeca(t_fila* fila){
     if (!fila)
         return NULL;
         
-    void* elem = lse_acessar(fila->elems, 1);
+    void* elem = acessar_lse(fila->elems, 1);
     return elem;
 
 }
