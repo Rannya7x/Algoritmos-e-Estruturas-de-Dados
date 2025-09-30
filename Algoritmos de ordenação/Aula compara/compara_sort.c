@@ -80,7 +80,7 @@ int comparar(void* arg_1, void* arg_2){
 int main(int argc, char** argv) {
     printf("%s\n", argv[1]);
     t_dataset ds = dataset_criar(argv[1]);
-    ordenar(bolha, ds.dataset, ds.tamanho, comparar);
+    ordenar(bolha, (void**) ds.dataset, ds.tamanho, comparar);
     printf("%d\n", ds.tamanho);
     return 0;
 }
