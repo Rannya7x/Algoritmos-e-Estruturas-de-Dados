@@ -177,7 +177,7 @@ static void __insercao(int vetor[], int lim_i, int lim_f){
 void insercao(int elems[], int N){
     __insercao(elems, 0, N-1);
 }
-void bolha(int vetor[], int N){
+void bolha(int vetor[], int N, t_comparar_id cmp){
     int trocas=1;
     for (int i=0;((trocas!=0) && (i<N-1));i++){
         trocas=0;
@@ -191,10 +191,10 @@ void bolha(int vetor[], int N){
     }
 }
 
-void ordenar(t_func_ordenacao alg, int vetor[], int N){
+void ordenar(t_func_ordenacao alg, void* vetor[], int N, t_comparar_id cmp){
     total_cmps = 0;
     total_trocas=0;
-    alg(vetor, N);
+    alg(vetor, N, cmp);
     printf("comparacoes: %d\n", total_cmps);
     printf("Total de trocas: %d\n", total_trocas);
 }

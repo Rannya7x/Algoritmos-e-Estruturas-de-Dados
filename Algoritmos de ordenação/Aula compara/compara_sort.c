@@ -12,7 +12,7 @@ typedef struct info {
     double luminosidade;
     double umidade;
     double velx_vento;
-    struct time marca_tempo;
+    struct time marca_tempo; 
 } t_info;
 
 typedef struct {
@@ -64,10 +64,23 @@ t_dataset dataset_criar(char nome_arq[]){
 
 }
 
+int comparar(void* arg_1, void* arg_2){
+    t_info* info_a = (t_info*) arg_1;
+    t_info* info_b = (t_info*) arg_2;
+    
+    if (info_a->id_no < info_b->id_no) {
+        return -1;
+    } else if (info_a->id_no > info_b->id_no) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 int main(int argc, char** argv) {
     printf("%s\n", argv[1]);
     t_dataset ds = dataset_criar(argv[1]);
-    ordenar(bolha, ds.dataset, ds.tamanho);
+    ordenar(bolha, ds.dataset, ds.tamanho, comparar);
     printf("%d\n", ds.tamanho);
     return 0;
 }
