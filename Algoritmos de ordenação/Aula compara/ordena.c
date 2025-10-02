@@ -1,16 +1,15 @@
 #include "stdio.h"
 #include "math.h"
-
-typedef void(*t_func_ordenacao)(int* vetor, int tam);
+#include "ordena.h"
 
 static void __insercao(int elems[], int lim_i, int lim_j);
 
 int total_cmps;
 int total_trocas;
 
-static void trocar(int vetor[], int i, int j){
+static void trocar(void* vetor[], int i, int j){
     total_trocas++;
-    int aux =vetor[i];
+    void* aux =vetor[i];
     vetor[i] = vetor[j];
     vetor[j] = aux;
 
@@ -177,13 +176,13 @@ static void __insercao(int vetor[], int lim_i, int lim_f){
 void insercao(int elems[], int N){
     __insercao(elems, 0, N-1);
 }
-void bolha(int vetor[], int N){
+void bolha(void* vetor[], int N, t_comparar_id cmp){
     int trocas=1;
     for (int i=0;((trocas!=0) && (i<N-1));i++){
         trocas=0;
         for(int j=N-1;j>i;j--){ // i limita o conjunto NO
             total_cmps++;
-            if (vetor[j]>vetor[j-1]){
+            if (cmp(vetor[j], vetor[j-1])<0){
                 trocar(vetor,j,j-1);
                 trocas = 1;
             }
@@ -191,10 +190,10 @@ void bolha(int vetor[], int N){
     }
 }
 
-void ordenar(t_func_ordenacao alg, int vetor[], int N){
+void ordenar(t_func_ordenacao alg, void* vetor[], int N, t_comparar_id cmp){
     total_cmps = 0;
     total_trocas=0;
-    alg(vetor, N);
+    alg(vetor, N, cmp);
     printf("comparacoes: %d\n", total_cmps);
     printf("Total de trocas: %d\n", total_trocas);
 }
