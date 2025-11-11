@@ -1,6 +1,7 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
+#include "math.h"
 
 //#include "../musica.h"
 
@@ -16,10 +17,10 @@ Produto* produto_criar(int id, long preco){
     return novo_produto;
 }
 
-static int produto_comparar(void* p1, void* p2){
+int produto_comparar(void* p1, void* p2){
     Produto* prod1 = (Produto*) p1;
     Produto* prod2 = (Produto*) p2;
-    if(prod1->preco > prod2->preco)|| (prod1->preco == prod2->preco && prod1->id > prod2->id) {
+    if((prod1->preco > prod2->preco)|| (prod1->preco == prod2->preco && prod1->id > prod2->id) ){
         return 1;
     } else if (prod1->preco < prod2->preco || (prod1->preco == prod2->preco && prod1->id < prod2->id)) {
         return -1;
@@ -28,13 +29,6 @@ static int produto_comparar(void* p1, void* p2){
     }
 }
 
-Produto* kth(t_no* raiz, int k){
-    // retorna o k-ésimo produto mais barato na árvore
-    
-}
-percentile(t_no* raiz, double p){
-    // retorna o produto no percentil p (0 < p < 100)
-}
 
 typedef struct no
 {
@@ -72,6 +66,55 @@ t_abb* abb_criar(t_abb_imprimir imprimir, t_abb_comparar comparar){
 
     return nova;
 }
+//retorna o size de um nó
+static int size(t_no* no){
+    if (no == NULL) return 0;
+    return no->size;
+}
+static Produto* __kth(t_no* raiz, int k){
+    if (raiz == NULL){
+        return NULL;
+    }
+    //pega o tamanho da sae
+    int sae_size = size(raiz->sae);
+
+    //k-esimo elemento tá na sae
+    if (k <= sae_size){
+        return __kth(raiz->sae, k);
+    //k-esimo é o da raiz
+    }else if (k == sae_size + 1){ 
+        return (Produto*) raiz->info;
+    //k-esimo tá na sad
+    }else{
+        int novo_k = k - (sae_size + 1);
+        return __kth(raiz->sad, novo_k);
+    }
+}
+
+Produto* kth(t_abb* abb, int k){
+    // retorna o k-ésimo produto mais barato na árvore
+    int n = size(abb->raiz); //pega tamanho total da arvre
+    if (k<=0 || k>n){
+        return NULL; //k inválido
+    }
+    return __kth(abb->raiz, k);
+}
+
+Produto* percentile(t_abb* abb, double p){
+    // retorna o produto no percentil p (0 < p < 100)
+    int n = size(abb->raiz); //pega tamanho total da arvre
+    if (n==0){
+        return NULL; //árvore vazia
+    }
+    if (p <= 0|| p >= 1.0){
+        return NULL; //percentil inválido
+    }
+    //converte p em k
+    int k = (int) ceil(p * (double)n);
+    return kth(abb, k);
+}
+
+
 
 static t_no* __abb_inserir(t_no* raiz, void* info, t_no* actral, t_abb_comparar comparar){
     if(raiz == NULL){
@@ -79,12 +122,21 @@ static t_no* __abb_inserir(t_no* raiz, void* info, t_no* actral, t_abb_comparar 
         return novo;
     }else{
         int rest = comparar(raiz->info, info);
-        if(rest > 0){ // inserir sae
-            raiz->sae = __abb_inserir(raiz->sae, info, raiz, comparar);
-        }else{ // inserir sad
-            raiz->sad = __abb_inserir(raiz->sad, info, raiz, comparar);
+        //se comparação for igual, n insere
+        if(rest == 0){ 
+            return raiz;
         }
-        return raiz;
+        if(rest > 0 ){ //preco na raiz é maior q o novo preço
+            raiz->sae = __abb_inserir(raiz->sae, info, raiz, comparar); //precos menores vao pra esquerda
+
+        }else {//preco na raiz é mnor
+            raiz->sad = __abb_inserir(raiz->sad, info, raiz, comparar); //preco maior vai pra direita
+        }
+
+        // acumula novo valor do size
+        raiz->size = 1 + size(raiz->sae) + size(raiz->sad);
+
+        return raiz;// propaga a raiz atualizada
     }
 }
 
@@ -183,49 +235,58 @@ void* abb_remover(t_abb* abb, void* chave){
     return info;
 }
 
+void produto_imprimir(Produto* p){
+    if (p == NULL){
+        return;
+    }
+    double preco_em_reais = ((double) p->preco)/100.0;
+    printf("ID=%d PRECO=%.2f\n", p->id, preco_em_reais);
+}
 
 int main(int argc, char const *argv[])
 {
-    char nome[100]="INICIANDO";
-    int duracao;
-    char separador[4];
+    char comando[100];
+    int id;
+    double preco_lido;
+    int k;
+    double p;
     
-    t_abb* colecao = abb_criar(musica_imprimir, musica_comparar);
+    t_abb* produtos = abb_criar(NULL, produto_comparar);
     
-    char linha[1000];
+    char linha[100];
     while (fgets(linha, sizeof(linha), stdin)) {
-        sscanf(linha, "%[^;];%d", nome, &duracao);
-        if (strcmp(nome, "FIM") == 0) break;
-        t_musica* nova_msc = musica_criar(nome, duracao);
-        abb_inserir(colecao, nova_msc);
-    }
+        if (sscanf(linha, "%s", comando) != 1){
+            continue; //linha vazia ou erro
+        }
 
+        //insert
+        if (strcmp(comando, "INSERT") == 0){
+            if (sscanf(linha, "%*s %d %lf", &id, &preco_lido)==2){
 
-    printf("Iniciando a busca!\n");
-    char buscado[100];
-    while(fgets(linha, sizeof(linha), stdin)){
-        sscanf(linha,"%[^;];", buscado);
-        if (strcmp(buscado,"FIM")==0) break;
-        t_musica* msc = abb_buscar(colecao, &buscado);
-        if (msc != NULL){
-            musica_imprimir(msc);
-        }else{
-            printf("%s não encontrado\n", buscado);
+                //preco em centavos
+                long preco = (long) round(preco_lido * 100.0);
+                //cria produto e insere na arvore
+                Produto* novo = produto_criar(id, preco);
+                abb_inserir(produtos, novo);
+            }
+        //kth
+        }else if(strcmp(comando, "KTH") == 0){
+            if (sscanf(linha, "%*s %d", &k) == 1){
+                Produto* res = kth(produtos, k);
+                if (res != NULL){
+                    produto_imprimir(res);
+                }
+            }
+        //percentile    
+        }else if(strcmp(comando, "PERCENTILE") == 0){
+            if (sscanf(linha, "%*s %lf", &p) == 1){
+                Produto* res = percentile(produtos, p);
+                if (res != NULL){
+                    produto_imprimir(res);
+                }
+            }
         }
     }
-    printf("Iniciando remoção!\n");
 
-    while(fgets(linha, sizeof(linha), stdin)){
-        sscanf(linha,"%[^;];", buscado);
-        if(strcmp(buscado,"FIM")==0) break;
-        t_musica* msc = abb_remover(colecao, buscado);
-        if (msc != NULL){
-            musica_imprimir(msc);
-            free(msc);
-            printf("removido!\n");
-        }else{
-            printf("%s não encontrado", buscado);
-        }
-    }
     return 0;
 }
