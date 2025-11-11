@@ -2,7 +2,7 @@
 #include "stdlib.h"
 #include "string.h"
 
-#include "../musica.h"
+//#include "../musica.h"
 
 typedef struct Produto {
     int id;
@@ -16,16 +16,15 @@ Produto* produto_criar(int id, long preco){
     return novo_produto;
 }
 
-void insert(t_no* raiz, int id, long preco){
-    // cria um novo produto
-    Produto* novo_produto = produto_criar(id, preco);
-    // insere na árvore conforme ordenação:
-    t_abb* nova_abb = abb_criar(produto_imprimir, produto_comparar);
-    //Se já existir um produto com o mesmo (preco, id), ignore a inserção.
-    Produto* buscado = abb_buscar(nova_abb, novo_produto);
-    if(buscado == NULL){
-        abb_inserir(nova_abb, novo_produto);
-        nova_abb->size++;
+static int produto_comparar(void* p1, void* p2){
+    Produto* prod1 = (Produto*) p1;
+    Produto* prod2 = (Produto*) p2;
+    if(prod1->preco > prod2->preco)|| (prod1->preco == prod2->preco && prod1->id > prod2->id) {
+        return 1;
+    } else if (prod1->preco < prod2->preco || (prod1->preco == prod2->preco && prod1->id < prod2->id)) {
+        return -1;
+    } else {
+        return 0;
     }
 }
 
@@ -34,7 +33,7 @@ Produto* kth(t_no* raiz, int k){
     
 }
 percentile(t_no* raiz, double p){
-
+    // retorna o produto no percentil p (0 < p < 100)
 }
 
 typedef struct no
@@ -42,15 +41,17 @@ typedef struct no
     struct no *actral;
     struct no *sae;
     struct no *sad;
-    Produto* info;
+    void* info;
+    int size;
 }t_no;
 
-static t_no* no_criar(Produto* info, t_no* actral){
+static t_no* no_criar(void* info, t_no* actral){
     t_no* novo = malloc(sizeof(t_no));
     novo->info = info;
     novo->actral = actral;
     novo->sae = NULL;
     novo->sad = NULL;
+    novo->size = 1;
     return novo;
 }
 
@@ -61,7 +62,6 @@ typedef struct abb
     t_no* raiz;
     t_abb_imprimir imprimir;
     t_abb_comparar comparar;
-    int size;
 }t_abb;
 
 t_abb* abb_criar(t_abb_imprimir imprimir, t_abb_comparar comparar){
@@ -69,12 +69,11 @@ t_abb* abb_criar(t_abb_imprimir imprimir, t_abb_comparar comparar){
     nova->raiz = NULL;
     nova->imprimir = imprimir;
     nova->comparar = comparar;
-    nova->size = 0;
 
     return nova;
 }
 
-static t_no* __abb_inserir(t_no* raiz, Produto* info, t_no* actral, t_abb_comparar comparar){
+static t_no* __abb_inserir(t_no* raiz, void* info, t_no* actral, t_abb_comparar comparar){
     if(raiz == NULL){
         t_no* novo = no_criar(info,actral);
         return novo;
@@ -89,7 +88,7 @@ static t_no* __abb_inserir(t_no* raiz, Produto* info, t_no* actral, t_abb_compar
     }
 }
 
-void abb_inserir(t_abb* abb, Produto* info){
+void abb_inserir(t_abb* abb, void* info){
     abb->raiz = __abb_inserir(abb->raiz, info, NULL, abb->comparar);
 }
 
@@ -177,7 +176,7 @@ static t_no* __abb_remover(t_no* raiz, t_abb_comparar comparar, void* chave, voi
 }
 
 void* abb_remover(t_abb* abb, void* chave){
-    Produto* info=NULL;
+    void* info=NULL;
     abb->raiz = __abb_remover(abb->raiz, abb->comparar, chave, &info);
     
 
